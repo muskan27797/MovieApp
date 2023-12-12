@@ -40,3 +40,19 @@ export const filterMoviesBasedOnSelectedGenre = (
     return movie.genre_ids.some(id => selectedGenre.includes(id));
   });
 };
+
+export const optimizeCardLoad = (
+  prevMovieGenreName: string[],
+  nextMovieGenreName: string[],
+) => {
+  if (prevMovieGenreName.length !== nextMovieGenreName.length) {
+    return false;
+  }
+
+  for (let i = 0; i < prevMovieGenreName.length; i++) {
+    if (prevMovieGenreName[i] !== nextMovieGenreName[i]) {
+      return false;
+    }
+  }
+  return true;
+};

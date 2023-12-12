@@ -1,55 +1,59 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
 import {colors} from '../colors';
 import {Constants} from '../constants';
-import {useRenderCount} from '../hooks/useRenderCount';
+import {optimizeCardLoad} from '../utils';
 
 interface CardProps {
   movieImage: string;
   movieTitle: string;
   movieDescription: string;
   movieGenreName: string[];
-  popularity: number;
-  index: number;
 }
 
 const Genre = ({name}: {name: string}) => {
   return <Text style={styles.genre}>{name}</Text>;
 };
 
-export const Card = ({
-  index,
-  movieImage,
-  movieTitle,
-  movieDescription,
-  movieGenreName,
-}: CardProps) => {
-  useRenderCount(`Card ${movieTitle}_${index} -------->`);
-  return (
-    <View style={styles.card}>
-      <View style={styles.movieInfoDetails}>
-        <Text style={styles.title}>{movieTitle}</Text>
-        <View style={styles.genreContainer}>
-          {movieGenreName.map((movieItem, index) => (
-            <Genre name={movieItem} key={index} />
-          ))}
+export const Card = memo(
+  ({movieImage, movieTitle, movieDescription, movieGenreName}: CardProps) => {
+    return (
+      <View style={styles.card}>
+        <View style={styles.movieInfoDetails}>
+          <Text style={styles.title}>{movieTitle}</Text>
+          <View style={styles.genreContainer}>
+            {movieGenreName.map((movieItem, index) => (
+              <Genre name={movieItem} key={index} />
+            ))}
+          </View>
+          <Text
+            ellipsizeMode="tail"
+            numberOfLines={12}
+            style={styles.description}>
+            {movieDescription}
+          </Text>
         </View>
-        <Text
-          ellipsizeMode="tail"
-          numberOfLines={12}
-          style={styles.description}>
-          {movieDescription}
-        </Text>
+        <View style={styles.imageContainer}>
+          <Image
+            style={{height: 230, width: 160}}
+            source={{uri: `${Constants.IMAGE_URL}${movieImage}`}}
+          />
+        </View>
       </View>
-      <View style={styles.imageContainer}>
-        <Image
-          style={{height: 230, width: 160}}
-          source={{uri: `${Constants.IMAGE_URL}${movieImage}`}}
-        />
-      </View>
-    </View>
-  );
-};
+    );
+  },
+  (prevProps, nextProps) => {
+    if (
+      optimizeCardLoad(prevProps.movieGenreName, nextProps.movieGenreName) &&
+      prevProps.movieDescription === nextProps.movieDescription &&
+      prevProps.movieImage === nextProps.movieImage &&
+      prevProps.movieTitle === nextProps.movieTitle
+    ) {
+      return true;
+    }
+    return false;
+  },
+);
 
 const styles = StyleSheet.create({
   card: {
@@ -97,12 +101,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: colors.blue,
-  },
-  cast: {
-    fontSize: 12,
-  },
-  director: {
-    fontSize: 12,
   },
   description: {
     marginTop: 8,

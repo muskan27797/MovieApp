@@ -1,13 +1,12 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {getMovieDetails} from '../networkUtility';
-import {MovieListTypes, SectionListDataType} from '../interface';
+import {SectionListDataType} from '../interface';
 import {DefaultSectionT, SectionList} from 'react-native';
 import {
   calculateScrollOffset,
   filterMoviesBasedOnSelectedGenre,
 } from '../utils';
 import {Default_List} from '../constants';
-import {log} from 'console';
 
 /**
  * Custom hook to handle infinte scrolling
@@ -38,11 +37,14 @@ export const useMovieDetails = (
   // Flag to check whether top pagination state
   const isTopPaginating = useRef<boolean>(false);
 
-  const scrollHandler = useCallback((yOffset: number) => {
-    sectionListRef.current
-      ?.getScrollResponder()
-      ?.scrollTo({x: 0, y: yOffset, animated: false});
-  }, []);
+  const scrollHandler = useCallback(
+    (yOffset: number) => {
+      sectionListRef.current
+        ?.getScrollResponder()
+        ?.scrollTo({x: 0, y: yOffset, animated: false});
+    },
+    [sectionListRef],
+  );
 
   /**
    * To fetch data based on year
@@ -70,7 +72,7 @@ export const useMovieDetails = (
         setIsFetching(false);
       });
     },
-    [getMovieDetails, setMovieDetails, setIsLoading, setIsFetching],
+    [setMovieDetails, setIsLoading, setIsFetching],
   );
 
   /**
@@ -96,7 +98,7 @@ export const useMovieDetails = (
   useEffect(() => {
     setIsLoading(true);
     fetchData(currYearRef.current);
-  }, []);
+  }, [fetchData]);
 
   const filteredMovieDetail = useMemo<SectionListDataType[]>(() => {
     if (!movieDetails) {
@@ -127,7 +129,7 @@ export const useMovieDetails = (
       isTopPaginating.current = false;
     }
     return filteredData;
-  }, [selectedGenre, movieDetails]);
+  }, [movieDetails, selectedGenre, scrollHandler]);
 
   return {
     sectionData: filteredMovieDetail,

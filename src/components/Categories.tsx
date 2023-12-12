@@ -1,15 +1,16 @@
-import React from 'react';
+import React, {memo, useContext} from 'react';
 import {StyleSheet, ScrollView} from 'react-native';
 import {Category} from './Category';
 import {CategoriesType} from '../interface';
-import {useRenderCount} from '../hooks/useRenderCount';
+import {GenreContext} from './GenreContext';
 
 interface CategoriesProps {
   categories: CategoriesType;
 }
 
-export const Categories = ({categories}: CategoriesProps) => {
-  useRenderCount('Categories -------->');
+export const Categories = memo(({categories}: CategoriesProps) => {
+  const {selectedGenre} = useContext(GenreContext);
+
   return (
     <ScrollView
       style={styles.displayCategory}
@@ -19,12 +20,13 @@ export const Categories = ({categories}: CategoriesProps) => {
         <Category
           key={category.id}
           categoryId={category.id}
+          isGenreSelected={selectedGenre.includes(category.id)}
           categoryName={category.name}
         />
       ))}
     </ScrollView>
   );
-};
+});
 const styles = StyleSheet.create({
   displayCategory: {
     margin: 10,

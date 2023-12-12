@@ -1,38 +1,37 @@
-import React, {useContext} from 'react';
+import React, {memo, useContext} from 'react';
 import {Text, StyleSheet, Pressable} from 'react-native';
 import {colors} from '../colors';
 import {GenreContext} from './GenreContext';
 import {toggleSelectedGenre} from '../utils';
-import {useRenderCount} from '../hooks/useRenderCount';
 
 interface CategoryProps {
   categoryId: number;
   categoryName: string;
+  isGenreSelected: boolean;
 }
 
-export const Category = ({categoryId, categoryName}: CategoryProps) => {
-  const {selectedGenre, setSelectedGenre} = useContext(GenreContext);
+export const Category = memo(
+  ({categoryId, categoryName, isGenreSelected}: CategoryProps) => {
+    const {setSelectedGenre} = useContext(GenreContext);
+    const filterMovieOnBasisOfGenre = () => {
+      setSelectedGenre(prevGenre => toggleSelectedGenre(categoryId, prevGenre));
+    };
 
-  const filterMovieOnBasisOfGenre = () => {
-    setSelectedGenre(prevGenre => toggleSelectedGenre(categoryId, prevGenre));
-  };
-
-  const isGenreSelected = selectedGenre.includes(categoryId);
-
-  useRenderCount(`Category ${categoryName}-------->`);
-
-  return (
-    <Pressable
-      style={styles.categoryContainer}
-      onPress={filterMovieOnBasisOfGenre}>
-      <Text
-        style={[
-          styles.categoryText,
-          isGenreSelected && styles.selectedGenre,
-        ]}>{`${categoryName}_${categoryId}`}</Text>
-    </Pressable>
-  );
-};
+    return (
+      <Pressable
+        style={styles.categoryContainer}
+        onPress={filterMovieOnBasisOfGenre}>
+        <Text
+          style={[
+            styles.categoryText,
+            isGenreSelected && styles.selectedGenre,
+          ]}>
+          {categoryName}
+        </Text>
+      </Pressable>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   categoryContainer: {

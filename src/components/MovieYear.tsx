@@ -1,20 +1,16 @@
-import React, {memo, useEffect} from 'react';
+import React, {memo} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {colors} from '../colors';
 import {Constants} from '../constants';
-import {useRenderCount} from '../hooks/useRenderCount';
 
 interface MovieYearProps {
   year: string;
-  count?: number;
 }
 
 export const MovieYear = memo((props: MovieYearProps) => {
-  useRenderCount(`MovieYear -------->${props.year}`);
   return (
     <View style={styles.year}>
-      <Text
-        style={styles.yearTypo}>{`${props.year} Count: ${props.count}`}</Text>
+      <Text style={styles.yearTypo}>{props.year}</Text>
     </View>
   );
 });

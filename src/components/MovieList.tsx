@@ -16,7 +16,6 @@ import {useMovieDetails} from '../hooks/useMovieDetails';
 import {CategoriesType, MovieDetails, SectionListDataType} from '../interface';
 import {Constants} from '../constants';
 import {fetchGenreName} from '../utils';
-import {useRenderCount} from '../hooks/useRenderCount';
 
 interface MovieListProps {
   selectedGenre: number[];
@@ -24,7 +23,6 @@ interface MovieListProps {
 }
 
 const LoadingComponent = () => {
-  useRenderCount('LoadingComponent');
   return (
     <View style={styles.loaderContainer}>
       <Text style={styles.loader}>{Constants.LOADING}</Text>
@@ -38,19 +36,11 @@ export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
   const {isLoading, sectionData, fetchNextPage, fetchPreviousPage, isFetching} =
     useMovieDetails(selectedGenre, sectionListRef);
 
-  useRenderCount('MovieList -------->');
-
   const renderItemHandler = useCallback(
-    ({
-      item,
-      index,
-    }: SectionListRenderItemInfo<MovieDetails, SectionListDataType>) => {
+    ({item}: SectionListRenderItemInfo<MovieDetails, SectionListDataType>) => {
       const movieGenreName = fetchGenreName(genres, item);
-
       return (
         <Card
-          index={index}
-          popularity={item.popularity}
           key={item.id}
           movieImage={item.poster_path}
           movieTitle={item.title}
@@ -90,14 +80,14 @@ export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
       section,
     }: {
       section: SectionListData<MovieDetails, SectionListDataType>;
-    }) => <MovieYear year={section.title} count={section.data.length} />,
+    }) => <MovieYear year={section.title} />,
     [],
   );
 
   //Loading State
   if (isLoading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center'}}>
+      <View style={styles.loading}>
         <ActivityIndicator size={'large'} />
       </View>
     );
@@ -113,6 +103,13 @@ export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
       <SectionList
         sections={sectionData}
         ref={sectionListRef as any}
+        getItemLayout={(_, index) => ({
+          length: Constants.MOVIE_CARD_HEIGHT + Constants.MOVIE_CARD_MARGIN,
+          offset:
+            index * Constants.MOVIE_CARD_HEIGHT + Constants.MOVIE_CARD_MARGIN,
+          index: index,
+        })}
+        keyExtractor={item => item.id.toString()}
         onEndReached={onEndReached}
         renderItem={renderItemHandler}
         renderSectionHeader={sectionHeaderHandler}
@@ -139,5 +136,11 @@ const styles = StyleSheet.create({
   loaderContainer: {
     height: 20,
   },
-  loader: {textAlign: 'center'},
+  loader: {
+    textAlign: 'center',
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+  },
 });

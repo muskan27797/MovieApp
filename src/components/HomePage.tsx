@@ -6,7 +6,6 @@ import {colors} from '../colors';
 import {MovieList} from './MovieList';
 import {GenreContext} from './GenreContext';
 import {useGenreData} from '../hooks/useGenreData';
-import {useRenderCount} from '../hooks/useRenderCount';
 
 /**
  * Initial Route
@@ -22,9 +21,6 @@ export const HomePage = () => {
     () => ({selectedGenre, setSelectedGenre}),
     [selectedGenre, setSelectedGenre],
   );
-
-  useRenderCount('HomePage -------->');
-
   return (
     <View style={styles.root}>
       <View style={styles.card}>
