@@ -8,6 +8,7 @@ import {
 } from '../utils';
 import {Default_List} from '../constants';
 
+const CURRENT_YEAR = new Date().getFullYear();
 /**
  * Custom hook to handle infinte scrolling
  * @param selectedGenre prop to filter data according to user selected genre
@@ -79,6 +80,9 @@ export const useMovieDetails = (
    * To fetch next page data
    */
   const fetchNextPage = useCallback(() => {
+    if (currYearRef.current + 1 > CURRENT_YEAR) {
+      return;
+    }
     currYearRef.current = currYearRef.current + 1;
     setIsFetching(true);
     fetchData(currYearRef.current);
