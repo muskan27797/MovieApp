@@ -2,7 +2,7 @@ import {Constants} from './constants';
 import {CategoriesType, MovieDetails, SectionListDataType} from './interface';
 
 export const calculateScrollOffset = (movieDataLength: number) => {
-  const TOTAL_NUMBER_OF_ROWS = Math.ceil(movieDataLength);
+  const TOTAL_NUMBER_OF_ROWS = movieDataLength;
   const CARD_LENGTH = TOTAL_NUMBER_OF_ROWS * Constants.MOVIE_CARD_HEIGHT;
   const MOVIE_YEAR_HEIGHT = Constants.MOVIE_YEAR_HEIGHT;
   const YEAR_MARGINS =
@@ -55,4 +55,13 @@ export const optimizeCardLoad = (
     }
   }
   return true;
+};
+
+export const filterMoviesBasedOnSearchedValue = (
+  movieDetail: SectionListDataType,
+  userSearch: string,
+) => {
+  return movieDetail.data.filter(movie => {
+    return movie.title.includes(userSearch);
+  });
 };

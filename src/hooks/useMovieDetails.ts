@@ -4,6 +4,7 @@ import {SectionListDataType} from '../interface';
 import {DefaultSectionT, SectionList} from 'react-native';
 import {
   calculateScrollOffset,
+  filterMoviesBasedOnSearchedValue,
   filterMoviesBasedOnSelectedGenre,
 } from '../utils';
 import {Default_List} from '../constants';
@@ -17,6 +18,7 @@ const CURRENT_YEAR = new Date().getFullYear();
  */
 export const useMovieDetails = (
   selectedGenre: number[],
+  userSearch: string,
   sectionListRef: React.RefObject<SectionList<any, DefaultSectionT>>,
 ) => {
   const [movieDetails, setMovieDetails] = useState<
@@ -40,9 +42,11 @@ export const useMovieDetails = (
 
   const scrollHandler = useCallback(
     (yOffset: number) => {
-      sectionListRef.current
-        ?.getScrollResponder()
-        ?.scrollTo({x: 0, y: yOffset, animated: false});
+      setTimeout(() => {
+        sectionListRef.current
+          ?.getScrollResponder()
+          ?.scrollTo({x: 0, y: yOffset, animated: false});
+      }, 0);
     },
     [sectionListRef],
   );
@@ -104,19 +108,14 @@ export const useMovieDetails = (
     fetchData(currYearRef.current);
   }, [fetchData]);
 
+  /**
+   * filter movie based on selected genres
+   */
   const filteredMovieDetail = useMemo<SectionListDataType[]>(() => {
     if (!movieDetails) {
       return [Default_List];
     }
-
-    if (selectedGenre.length == 0) {
-      if (isTopPaginating.current) {
-        const offset = calculateScrollOffset(
-          movieDetails.length ? movieDetails[0].data.length : 0,
-        );
-        scrollHandler(offset);
-        isTopPaginating.current = false;
-      }
+    if (selectedGenre.length === 0) {
       return movieDetails;
     }
     const filteredData = movieDetails.map(movieDetail => {
@@ -125,18 +124,37 @@ export const useMovieDetails = (
         data: filterMoviesBasedOnSelectedGenre(movieDetail, selectedGenre),
       };
     });
+    return filteredData;
+  }, [movieDetails, selectedGenre]);
+
+  /**
+   * filter movie based on search term
+   */
+  const filterBySearch = useMemo(() => {
+    if (userSearch.length === 0) {
+      return filteredMovieDetail;
+    } else {
+      return filteredMovieDetail.map(movieDetail => {
+        return {
+          ...movieDetail,
+          data: filterMoviesBasedOnSearchedValue(movieDetail, userSearch),
+        };
+      });
+    }
+  }, [userSearch, filteredMovieDetail]);
+
+  useEffect(() => {
     if (isTopPaginating.current) {
       const offset = calculateScrollOffset(
-        filteredData.length > 0 ? filteredData[0].data.length : 0,
+        filterBySearch.length > 0 ? filterBySearch[0].data.length : 0,
       );
       scrollHandler(offset);
       isTopPaginating.current = false;
     }
-    return filteredData;
-  }, [movieDetails, selectedGenre, scrollHandler]);
+  }, [filterBySearch, scrollHandler]);
 
   return {
-    sectionData: filteredMovieDetail,
+    sectionData: filterBySearch,
     fetchNextPage,
     isFetching,
     fetchPreviousPage,

@@ -16,10 +16,12 @@ import {useMovieDetails} from '../hooks/useMovieDetails';
 import {CategoriesType, MovieDetails, SectionListDataType} from '../interface';
 import {Constants} from '../constants';
 import {fetchGenreName} from '../utils';
+import {colors} from '../colors';
 
 interface MovieListProps {
   selectedGenre: number[];
   genres: CategoriesType;
+  userSearch: string;
 }
 
 const LoadingComponent = () => {
@@ -30,11 +32,23 @@ const LoadingComponent = () => {
   );
 };
 
-export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
+const EmptyItemComponent = () => {
+  return (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyItemText}>{Constants.NO_MOVIES}</Text>
+    </View>
+  );
+};
+
+export const MovieList = ({
+  selectedGenre,
+  genres,
+  userSearch,
+}: MovieListProps) => {
   const sectionListRef = useRef<SectionList>(null);
 
   const {isLoading, sectionData, fetchNextPage, fetchPreviousPage, isFetching} =
-    useMovieDetails(selectedGenre, sectionListRef);
+    useMovieDetails(selectedGenre, userSearch, sectionListRef);
 
   const renderItemHandler = useCallback(
     ({item}: SectionListRenderItemInfo<MovieDetails, SectionListDataType>) => {
@@ -84,6 +98,21 @@ export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
     [],
   );
 
+  const sectionFooterComponent = useCallback(
+    ({
+      section,
+    }: {
+      section: SectionListData<MovieDetails, SectionListDataType>;
+    }) => {
+      if (section.data.length === 0) {
+        return <EmptyItemComponent />;
+      } else {
+        return null;
+      }
+    },
+    [],
+  );
+
   //Loading State
   if (isLoading) {
     return (
@@ -113,6 +142,7 @@ export const MovieList = ({selectedGenre, genres}: MovieListProps) => {
         onEndReached={onEndReached}
         renderItem={renderItemHandler}
         renderSectionHeader={sectionHeaderHandler}
+        renderSectionFooter={sectionFooterComponent}
         showsVerticalScrollIndicator={false}
         onScroll={scrollingOffsetHandler}
         ListFooterComponent={loadingComponent}
@@ -142,5 +172,13 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
+  },
+  emptyContainer: {
+    marginLeft: 8,
+    height: Constants.EMPTY_CONTENT_HEIGHT,
+  },
+  emptyItemText: {
+    color: colors.blue,
+    fontSize: 18,
   },
 });

@@ -29,7 +29,7 @@ export const Categories = memo(({categories}: CategoriesProps) => {
 });
 const styles = StyleSheet.create({
   displayCategory: {
-    margin: 10,
+    marginVertical: 5,
     maxHeight: 50,
     marginHorizontal: 20,
   },

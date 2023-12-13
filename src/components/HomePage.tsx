@@ -6,6 +6,7 @@ import {colors} from '../colors';
 import {MovieList} from './MovieList';
 import {GenreContext} from './GenreContext';
 import {useGenreData} from '../hooks/useGenreData';
+import {SearchBar} from './SearchBar';
 
 /**
  * Initial Route
@@ -16,6 +17,8 @@ export const HomePage = () => {
 
   // selectedGenre state to store current selected genre Ids
   const [selectedGenre, setSelectedGenre] = useState<number[]>([]);
+
+  const [userSearch, setUserSearch] = useState<string>('');
 
   const genreDataValue = useMemo(
     () => ({selectedGenre, setSelectedGenre}),
@@ -28,8 +31,13 @@ export const HomePage = () => {
         <GenreContext.Provider value={genreDataValue}>
           <Categories categories={genres} />
         </GenreContext.Provider>
+        <SearchBar userSearch={userSearch} setUserSearch={setUserSearch} />
       </View>
-      <MovieList genres={genres} selectedGenre={selectedGenre} />
+      <MovieList
+        genres={genres}
+        selectedGenre={selectedGenre}
+        userSearch={userSearch}
+      />
     </View>
   );
 };
